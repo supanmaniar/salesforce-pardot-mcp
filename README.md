@@ -34,9 +34,12 @@ Two MCP **resources** (`pardot://catalog`, `pardot://overview`) and one **prompt
 ```bash
 cd pardot-mcp-server
 npm install
-npm run generate   # Postman collection -> catalog/endpoints.json
 npm run build
 ```
+
+That's it — the endpoint catalog is **already committed** at `catalog/endpoints.json`, so no extra step is needed to get running.
+
+> **Regenerating the catalog is optional.** It's only necessary if you want to rebuild it from the source Postman collection, which is not included in this repository (it's Salesforce's material). See [Regenerating the catalog](#regenerating-the-catalog) below.
 
 ### 2. Create a Salesforce Connected App
 
@@ -149,15 +152,24 @@ Omitting it returns HTTP 400. The server surfaces this in error hints.
 
 ## Regenerating the catalog
 
-The catalog is derived from the Postman collection at `../Sources/Marketing Cloud Account Engagement API Reference.json`:
+The committed `catalog/endpoints.json` is generated from the official Salesforce Postman collection, **which is not bundled with this repository**. To regenerate it you'll need to supply that collection yourself:
+
+1. Download the **Marketing Cloud Account Engagement API** collection from the [Salesforce Postman workspace](https://www.postman.com/salesforce-developers/workspace/salesforce-developers/) (or export it from Postman).
+2. Run the generator, pointing it at your copy:
+
+```bash
+node scripts/generate-catalog.mjs /path/to/collection.json catalog/endpoints.json
+```
+
+Or, if you place the collection at `../Sources/Marketing Cloud Account Engagement API Reference.json`, the default paths work:
 
 ```bash
 npm run generate
-# or with explicit paths:
-node scripts/generate-catalog.mjs <input.json> <output.json>
 ```
 
 The generator infers JSON Schemas from the collection's sample request bodies, extracts path/query parameters and their required flags, and classifies each endpoint by kind.
+
+> **Note:** inferred body schemas are advisory. Because the collection only ships *sample* bodies, `required` is deliberately omitted from JSON body schemas — see [Notes and limitations](#notes-and-limitations).
 
 ---
 
